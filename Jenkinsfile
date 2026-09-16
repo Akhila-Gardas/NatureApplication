@@ -8,7 +8,7 @@ pipeline {
     }
 
     environment {
-        SCANNER_HOME = tool 'sonar'
+        SCANNER_HOME = tool 'sonar-cred'
         IMAGE_NAME = 'nature-java-app'
         CONTAINER_NAME = 'nature-app'
     }

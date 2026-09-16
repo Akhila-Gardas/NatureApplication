@@ -2,54 +2,121 @@ pipeline {
 
     agent any
 
+    tools {
+        maven 'maven3'
+        jdk 'jdk17'
+    }
+
+    environment {
+        SCANNER_HOME = tool 'sonar'
+        IMAGE_NAME = 'nature-java-app'
+        CONTAINER_NAME = 'nature-app'
+    }
+
     stages {
 
         stage('Checkout') {
             steps {
-                checkout scm
+                echo '📥 Checking out Java Nature Application...'
+
+                git branch: 'main',
+                    url: 'https://github.com/Akhila-Gardas/NatureApplication.git'
             }
         }
 
         stage('Build') {
             steps {
-                sh 'mvn clean package -DskipTests'
+                echo '🔨 Building Java application...'
+
+                sh '''
+                    mvn clean package -DskipTests
+                '''
             }
         }
 
         stage('Test') {
             steps {
-                sh 'mvn test'
+                echo '🧪 Running tests...'
+
+                sh '''
+                    mvn test
+                '''
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            steps {
+                echo '🔍 Running SonarQube analysis...'
+
+                withSonarQubeEnv('sonar') {
+                    sh '''
+                        ${SCANNER_HOME}/bin/sonar-scanner \
+                        -Dsonar.projectKey=nature-java-app \
+                        -Dsonar.projectName=Nature-Java-App \
+                        -Dsonar.sources=src/main/java \
+                        -Dsonar.java.binaries=target/classes
+                    '''
+                }
             }
         }
 
         stage('Docker Build') {
             steps {
-                sh 'docker build -t nature-java-app .'
+                echo '🐳 Building Docker image...'
+
+                sh '''
+                    docker build \
+                    -t ${IMAGE_NAME}:latest .
+                '''
             }
         }
 
         stage('Deploy') {
             steps {
+                echo '🚀 Deploying application...'
+
                 sh '''
-                    docker stop nature-app || true
-                    docker rm nature-app || true
+                    docker stop ${CONTAINER_NAME} || true
+                    docker rm ${CONTAINER_NAME} || true
 
                     docker run -d \
-                        --name nature-app \
+                        --name ${CONTAINER_NAME} \
                         -p 8081:8080 \
-                        nature-java-app
+                        ${IMAGE_NAME}:latest
+                '''
+            }
+        }
+
+        stage('Verify Application') {
+            steps {
+                echo '🔎 Checking application...'
+
+                sh '''
+                    sleep 10
+
+                    docker ps
+
+                    curl -f http://localhost:8081
+
+                    echo ""
+                    echo "🌿 Nature Java Application is running!"
                 '''
             }
         }
     }
 
     post {
+
         success {
-            echo '🌿 Nature Java App deployed successfully!'
+            echo '=========================================='
+            echo '🌿 Nature Java Application Deployed!'
+            echo '=========================================='
+
+            echo 'Application URL: http://15.206.203.253:8081'
         }
 
         failure {
-            echo '❌ Deployment failed.'
+            echo '❌ Pipeline failed. Check the Jenkins console output.'
         }
     }
 }

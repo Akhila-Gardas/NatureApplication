@@ -8,7 +8,7 @@ pipeline {
     }
 
     environment {
-        SCANNER_HOME = tool 'sonar-cred'
+        SCANNER_HOME = tool 'sonar'
         IMAGE_NAME = 'nature-java-app'
         CONTAINER_NAME = 'nature-app'
     }
@@ -48,7 +48,7 @@ pipeline {
             steps {
                 echo '🔍 Running SonarQube analysis...'
 
-                withSonarQubeEnv('sonar') {
+                withSonarQubeEnv('sonar-cred') {
                     sh '''
                         ${SCANNER_HOME}/bin/sonar-scanner \
                         -Dsonar.projectKey=nature-java-app \

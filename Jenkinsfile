@@ -19,8 +19,7 @@ pipeline {
             steps {
                 echo '📥 Checking out Java Nature Application...'
 
-                git branch: 'main',
-                    url: 'https://github.com/Akhila-Gardas/NatureApplication.git'
+                checkout scm
             }
         }
 

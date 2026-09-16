@@ -1,12 +1,12 @@
 package com.nature.app;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootApplication
-public class NatureApplication {
+@SpringBootTest
+class NatureApplicationTests {
 
-    public static void main(String[] args) {
-        SpringApplication.run(NatureApplication.class, args);
+    @Test
+    void contextLoads() {
     }
 }
